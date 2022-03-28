@@ -54,3 +54,14 @@ Tenants:
         VNID: 50004
         VLANID: 502
         SVI: 10.10.202.1/24
+  Muave:
+    L3VNI: 60000
+    L2VNI: 
+      DMZ: 
+        VNID: 60001
+        VLANID: 601
+        SVI: 10.10.201.1/24
+      Backup:
+        VNID: 60004
+        VLANID: 602
+        SVI: 10.10.202.1/24
