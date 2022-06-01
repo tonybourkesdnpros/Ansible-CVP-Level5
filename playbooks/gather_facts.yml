@@ -1,0 +1,14 @@
+---
+- hosts: leaf1-DC1
+  name: Gather facts
+  tasks: 
+    - name: Gather facts
+      arista.eos.eos_facts:
+        gather_subset: all
+    - name: Display facts
+      debug:
+        msg: "{{ ansible_net_neighbors }}"
+    - name: Can I use it in a Template? 
+      template: 
+        src: "{{lookup('env','PWD')}}/templates/test.j2"
+        dest: "{{lookup('env','PWD')}}/configs/test/test.cfg"

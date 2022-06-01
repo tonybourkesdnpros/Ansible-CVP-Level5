@@ -1,0 +1,7 @@
+{% for neighbor in ansible_net_neighbors %}
+{% if 'leaf' in ansible_net_neighbors[neighbor][0]['host'] %}
+{% set neighbor_hostname_split = ansible_net_neighbors[neighbor][0]['host'].split('.') %}
+{% set neighbor_hostname = neighbor_hostname_split[0] %}
+neighbor {{neighbor_hostname}} {{ ansible_net_neighbors[neighbor][0]['port'] }}
+{% endif %}
+{%endfor%}

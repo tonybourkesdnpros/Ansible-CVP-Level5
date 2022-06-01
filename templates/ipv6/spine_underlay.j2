@@ -1,0 +1,35 @@
+service routing protocols model multi-agent
+
+ip prefix-list LOOPBACK
+    seq 10 permit 192.168.101.0/24 eq 32
+    seq 20 permit 192.168.102.0/24 eq 32
+ 
+route-map LOOPBACK permit 10
+   match ip address prefix-list LOOPBACK
+
+
+router bgp {{ underlay[inventory_hostname]['BGP']['ASN'] }}
+   router-id {{ underlay[inventory_hostname]['interfaces']['loopback0']['ipv4']}}
+
+   bgp default ipv4-unicast transport ipv6
+   bgp default ipv6-unicast
+   neighbor UNDERLAY peer group
+   redistribute connected
+{% for neighbor in ansible_net_neighbors %}
+{% if 'leaf' in ansible_net_neighbors[neighbor][0]['host'] %}
+{% set neighbor_hostname_split = ansible_net_neighbors[neighbor][0]['host'].split('.') %}
+{% set neighbor_hostname = neighbor_hostname_split[0] %}
+neighbor interface {{ ansible_net_neighbors[neighbor][0]['port'] }} peer-group UNDERLAY remote-as {{ underlay[neighbor_hostname]['BGP']['ASN']}}
+{% endif %}
+{%endfor%}
+
+   address-family ipv4
+      bgp next-hop address-family ipv6
+      neighbor UNDERLAY activate
+      neighbor UNDERLAY next-hop address-family ipv6 originate
+      network  {{ underlay[inventory_hostname]['interfaces']['loopback0']['ipv4']}}/{{ underlay[inventory_hostname]['interfaces']['loopback0']['mask']}}
+      
+      address-family ipv6
+        neighbor UNDERLAY activate
+
+
