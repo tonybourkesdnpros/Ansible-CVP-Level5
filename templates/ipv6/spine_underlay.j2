@@ -10,19 +10,42 @@ route-map LOOPBACK permit 10
 
 router bgp {{ underlay[inventory_hostname]['BGP']['ASN'] }}
    router-id {{ underlay[inventory_hostname]['interfaces']['loopback0']['ipv4']}}
+   maximum-paths 3
+   distance bgp 20 200 200
 
    bgp default ipv4-unicast transport ipv6
    bgp default ipv6-unicast
    neighbor UNDERLAY peer group
    redistribute connected
+{#
+{% for interface in underlay[inventory_hostname]['interfaces'] %}
+{% if 'thernet' in interface %}
+   neighbor interface {{interface}} peer-group UNDERLAY remote-as {{ underlay[inventory_hostname]['BGP']['spine-ASN'] }}
+{% endif %}
+{% endfor %}
+#}
+
+
 {% for neighbor in ansible_net_neighbors %}
-{% if 'leaf' in ansible_net_neighbors[neighbor][0]['host'] %}
 {% set neighbor_hostname_split = ansible_net_neighbors[neighbor][0]['host'].split('.') %}
 {% set neighbor_hostname = neighbor_hostname_split[0] %}
-neighbor interface {{ ansible_net_neighbors[neighbor][0]['port'] }} peer-group UNDERLAY remote-as {{ underlay[neighbor_hostname]['BGP']['ASN']}}
+{% set interface = ansible_net_neighbors[neighbor][0]['port']%}
+{% if 'leaf' in neighbor_hostname %}
+   neighbor interface {{neighbor}} peer-group UNDERLAY remote-as {{ underlay[neighbor_hostname]['BGP']['ASN'] }}
+{% endif %}
+{% endfor %}
+
+{#
+
+{{interface }}
+{% if 'leaf' in interface %}
+   neighbor on {{ interface }}   
+{#
+   neighbor interface {{ ansible_net_neighbors[neighbor][0]['port'] }} peer-group UNDERLAY remote-as {{ underlay[neighbor_hostname]['BGP']['ASN']}}
+
 {% endif %}
 {%endfor%}
-
+#}
    address-family ipv4
       bgp next-hop address-family ipv6
       neighbor UNDERLAY activate

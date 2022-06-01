@@ -54,7 +54,7 @@
     - name: Create Spine EVPN Underlay config
       template: 
         src: "{{lookup('env','PWD')}}/templates/ipv6/spine_underlay.j2"
-        dest: "{{lookup('env','PWD')}}/configs/ipv6/{{inventory_hostname}}/{{inventory_hostname}}_EVPN_underlay.cfg"
+        dest: "{{lookup('env','PWD')}}/configs/ipv6/{{inventory_hostname}}/{{inventory_hostname}}_ipv6_EVPN_underlay.cfg"
 
   - name: Create leaf configurations for underlay and VXLAN tenants
     hosts: leafs_DC1, leafs_DC2

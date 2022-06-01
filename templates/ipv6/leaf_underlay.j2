@@ -14,6 +14,8 @@ route-map LOOPBACK permit 10
 
 router bgp {{ underlay[inventory_hostname]['BGP']['ASN'] }}
    router-id {{ underlay[inventory_hostname]['interfaces']['loopback0']['ipv4']}}
+   maximum-paths 3
+   distance bgp 20 200 200
 
 
 
@@ -27,24 +29,26 @@ router bgp {{ underlay[inventory_hostname]['BGP']['ASN'] }}
 {% endif %}
 {% endfor %}
    redistribute connected
+
+   neighbor LEAF_Peer peer group
+   neighbor LEAF_Peer remote-as {{ underlay[inventory_hostname]['BGP']['ASN'] }}
+   neighbor LEAF_Peer next-hop-self
+   neighbor LEAF_Peer maximum-routes 12000
+
+{% if underlay[inventory_hostname]['MLAG'] == "Odd" %}
+   neighbor 192.168.255.2 peer group LEAF_Peer 
+   {% else %}
+   neighbor 192.168.255.1 peer group LEAF_Peer 
+{% endif %}
    
    address-family ipv4
       bgp next-hop address-family ipv6
       neighbor UNDERLAY activate
       neighbor UNDERLAY next-hop address-family ipv6 originate
-      network  {{ underlay[inventory_hostname]['interfaces']['loopback0']['ipv4']}}/{{ underlay[inventory_hostname]['interfaces']['loopback0']['mask']}}
-      network  {{ underlay[inventory_hostname]['interfaces']['loopback1']['ipv4']}}/{{ underlay[inventory_hostname]['interfaces']['loopback1']['mask']}}
+      neighbor LEAF_Peer activate
+      redistribute connected route-map LOOPBACK
       
-   address-family ipv6
-      neighbor UNDERLAY activate
+{# address-family ipv6
+      neighbor UNDERLAY activate#}
 
 
-
-{% for peer in underlay[inventory_hostname]['BGP']['spine-peers'] %}
-   neighbor {{ peer }} peer group Underlay
-{% endfor %}   
-{% if underlay[inventory_hostname]['MLAG'] == "Odd" %}
-   neighbor 192.168.255.2 peer group LEAF_Peer
-   {% else %}
-   neighbor 192.168.255.1 peer group LEAF_Peer
-{% endif %}
