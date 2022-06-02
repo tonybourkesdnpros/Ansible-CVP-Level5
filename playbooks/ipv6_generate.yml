@@ -72,10 +72,10 @@
       template: 
         src: "{{lookup('env','PWD')}}/templates/ipv6/leaf_underlay.j2"
         dest: "{{lookup('env','PWD')}}/configs/ipv6/{{inventory_hostname}}/{{inventory_hostname}}_ipv6_EVPN_underlay.cfg"   
-    # - name: Create VXLAN Configuration
-    #   template: 
-    #     src: "{{lookup('env','PWD')}}/templates/VXLAN.j2"
-    #     dest: "{{lookup('env','PWD')}}/configs/{{inventory_hostname}}/{{inventory_hostname}}_VXLAN.cfg"
+    - name: Create VXLAN Configuration
+      template: 
+        src: "{{lookup('env','PWD')}}/templates/VXLAN.j2"
+        dest: "{{lookup('env','PWD')}}/configs/ipv6/{{inventory_hostname}}/{{inventory_hostname}}_VXLAN.cfg"
 
 
 

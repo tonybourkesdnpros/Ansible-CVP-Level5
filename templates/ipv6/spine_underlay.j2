@@ -46,13 +46,29 @@ router bgp {{ underlay[inventory_hostname]['BGP']['ASN'] }}
 {% endif %}
 {%endfor%}
 #}
-   address-family ipv4
+
+    neighbor EVPN update-source Loopback0
+    neighbor EVPN ebgp-multihop 
+    neighbor EVPN send-community extended
+    neighbor EVPN maximum-routes 0
+    
+
+{% set DC_list = inventory_hostname.split('-') %}
+{% set DC = DC_list[1] %}
+{% for peer in underlay['global'][DC]['spine_peers'] %}
+    neighbor {{ peer }} peer group EVPN
+{% endfor %}  
+    bgp listen range {{ underlay['global']['DC1']['lo0']}} peer-group EVPN peer-filter LEAF-AS-RANGE
+
+   
+    address-family ipv4
       bgp next-hop address-family ipv6
       neighbor UNDERLAY activate
       neighbor UNDERLAY next-hop address-family ipv6 originate
-      network  {{ underlay[inventory_hostname]['interfaces']['loopback0']['ipv4']}}/{{ underlay[inventory_hostname]['interfaces']['loopback0']['mask']}}
-      
-      address-family ipv6
-        neighbor UNDERLAY activate
+      redistribute connected route-map LOOPBACK
 
+    address-family ipv6
+        neighbor UNDERLAY activate
+    address-family evpn
+      neighbor EVPN activate
 

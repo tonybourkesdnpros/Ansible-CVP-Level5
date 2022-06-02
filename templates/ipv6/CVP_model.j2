@@ -8,12 +8,12 @@ CVP_CONFIGLETS_EVPN:
   {{host}}_EVPN_underlay: {%raw %}"{{lookup('file','{{path}}/configs/ipv6/{% endraw %}{{host}}/{{host}}_ipv6_EVPN_underlay.cfg')}}"
   {{host}}_interface: {%raw %}"{{lookup('file','{{path}}/configs/ipv6/{% endraw %}{{host}}/{{host}}_ipv6_interface.cfg')}}"
 {% endif %}
-{% endfor %}
-{#{% if 'leaf' in host %}
-  {{host}}_VXLAN: {%raw %}"{{lookup('file','{{path}}/configs/{% endraw %}{{host}}/{{host}}_VXLAN.cfg')}}"
+{% if 'leaf' in host %}
+  {{host}}_VXLAN: {%raw %}"{{lookup('file','{{path}}/configs/ipv6/{% endraw %}{{host}}/{{host}}_VXLAN.cfg')}}"
 {% endif %}
-#}
-{#
+{% endfor %}
+
+
 CVP_DEVICES_EVPN:
 
 {% for host in underlay %}
@@ -51,4 +51,3 @@ CVP_DEVICES_EVPN:
 {%endif%}
 {% endif %}
 {% endfor %}
-#}

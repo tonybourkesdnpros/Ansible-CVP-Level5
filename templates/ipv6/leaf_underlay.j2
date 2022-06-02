@@ -40,6 +40,23 @@ router bgp {{ underlay[inventory_hostname]['BGP']['ASN'] }}
    {% else %}
    neighbor 192.168.255.1 peer group LEAF_Peer 
 {% endif %}
+
+   neighbor EVPN peer group
+ 
+   neighbor EVPN remote-as {{ underlay['global']['DC1']['spine_ASN']}} 
+ 
+  
+   neighbor EVPN update-source Loopback0
+   neighbor EVPN ebgp-multihop 
+   neighbor EVPN send-community extended
+   neighbor EVPN maximum-routes 0
+
+{% set DC_list = inventory_hostname.split('-') %}
+{% set DC = DC_list[1] %}
+{% for peer in underlay['global'][DC]['spine_peers'] %}
+   neighbor {{ peer }} peer group EVPN
+{% endfor %}  
+ 
    
    address-family ipv4
       bgp next-hop address-family ipv6
@@ -47,7 +64,11 @@ router bgp {{ underlay[inventory_hostname]['BGP']['ASN'] }}
       neighbor UNDERLAY next-hop address-family ipv6 originate
       neighbor LEAF_Peer activate
       redistribute connected route-map LOOPBACK
-      
+   
+   address-family evpn
+      neighbor EVPN activate
+
+
 {# address-family ipv6
       neighbor UNDERLAY activate#}
 
