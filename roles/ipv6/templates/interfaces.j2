@@ -1,16 +1,15 @@
 ip routing ipv6 interfaces
 ipv6 unicast-routing
 
-
-{% for interface in underlay[inventory_hostname]['interfaces'] %}
+{% for interface in underlay[inventory_hostname]['loopbacks'] %}
 interface {{ interface }}
-{% if 'oopback' in interface %}
   ip address {{ underlay[inventory_hostname]['interfaces'][interface]['ipv4']}}/{{ underlay[inventory_hostname]['interfaces'][interface]['mask']}}
-{% endif %}
-{% if 'Ethernet' in interface %}
+{% endfor %}
+
+{% for interface in underlay[inventory_hostname]['p2p'] %}
+interface {{ interface }}
   no switchport
   mtu {{underlay['global']['MTU']}}
   ipv6 enable
-{% endif %}
 {% endfor %}
 
