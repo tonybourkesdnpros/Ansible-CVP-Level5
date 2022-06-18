@@ -47,6 +47,7 @@ router bgp {{ underlay[inventory_hostname]['BGP']['ASN'] }}
     rd {{ underlay[inventory_hostname]['interfaces']['loopback0']['ipv4']}}:{{ VXLAN['Tenants'][Tenant]['L3VNI']}}
     route-target import evpn {{ VXLAN['Tenants'][Tenant]['L3VNI']}}:{{ VXLAN['Tenants'][Tenant]['L3VNI']}}
     route-target export evpn {{ VXLAN['Tenants'][Tenant]['L3VNI']}}:{{ VXLAN['Tenants'][Tenant]['L3VNI']}}
+    redistribute connected
 {%endfor%}
 
 {% for Tenant in VXLAN['Tenants'] %}
